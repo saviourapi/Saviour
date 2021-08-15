@@ -1,0 +1,21 @@
+POST http://localhost:8000/api/learning/
+content-type: application/json
+
+{
+    "_id": "20210811214331389027",
+    "x_plot": "DATEPRD",
+    "y_plot": "BORE_OIL_VOL",
+    "group_by": "NPD_WELL_BORE_CODE",
+    "algorithm": 2,
+    "labels": [
+        "ON_STREAM_HRS", 
+        "AVG_DOWNHOLE_TEMPERATURE",
+        "AVG_ANNULUS_PRESS",
+        "AVG_CHOKE_SIZE_P",
+        "AVG_WHP_P",
+        "AVG_WHT_P"
+    ]
+}
+
+
+

@@ -1,0 +1,6 @@
+DELETE http://localhost:8000/api/learning/delete/
+content-type: application/json
+
+{
+    "_id": "20210811214331389027"
+}
