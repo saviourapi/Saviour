@@ -25,13 +25,24 @@ RANDOM_FOREST_NAME = 'rand_forest'
 
 class LearningService:
 
-    def __read_csv_file__(self,_id):
+    def find(self, dir, name):
+        for root, dirs, files in os.walk(dir):
+            for f in files:
+                ext = f.split('.')[-1]
+                file = f'{name}.{ext}'
+                if f == file:
+                    return path.join(root, f), ext
+
+    def __read_file__(self, _id):
         try:
-            csv_file = path.join(DIR_NAME, f'{_id}.csv')
-            df = pd.read_csv(csv_file)
-            return DataFrame(df)
+            csv_file, ext = self.find(DIR_NAME, f'{_id}')
+            if ext == 'csv':
+                return pd.read_csv(csv_file)
+            elif ext == 'xlsx' or ext == 'xls':
+                return pd.read_excel(csv_file)
+            raise Exception(f'{ext} not supported')
         except:
-            raise ValidationError({"message": "CSV file not found"})
+            raise ValidationError({"message": "File not found"})
     
     def __save_model__(self, model, _id, x_plot, y_plot, algorithm, labels):
         pickle.dump(model, open(path.join(DIR_NAME, f'{_id}.model.sav'), 'wb'))
@@ -104,7 +115,7 @@ class LearningService:
 
 
     def fit(self, _id, x_plot: str,  y_plot: str, group_by: str, labels: list, test_size=0.2, algorithm=1):
-        df = self.__read_csv_file__(_id)
+        df = self.__read_file__(_id)
         
         try:
             columns = df.columns.tolist()
@@ -221,7 +232,15 @@ class LearningService:
         y_plot = meta['y_plot']
         labels = meta['labels']
         algorithm = meta['algorithm']
-        prod_data = pd.read_csv(csvfile)
+        ext = csvfile.name.split('.')[-1]
+
+        if ext == 'csv':
+            prod_data = pd.read_csv(csvfile)
+        elif ext == 'xlsx' or ext == 'xls':
+            prod_data = pd.read_excel(csvfile)
+        else:
+            raise APIException('File format not supported')
+            
         data = pd.DataFrame(prod_data)
         if len(data) < 2:
             raise ValidationError({"message": "Please provide at least two rows in csv file."})
@@ -270,9 +289,10 @@ class LearningService:
 
     def delete_model(self, _id):
         try:
+            file, _ = self.find(DIR_NAME, f'{_id}')
             remove(path.join(DIR_NAME, f'{_id}.meta.sav'))
             remove(path.join(DIR_NAME, f'{_id}.model.sav'))
-            remove(path.join(DIR_NAME, f'{_id}.csv'))
+            remove(file)
             return {"message": "Model deleted"}
         except:
             return {"message": "Model not found"}

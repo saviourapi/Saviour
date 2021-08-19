@@ -11,12 +11,18 @@ class CsvdDtaService:
 
 
     def read_csv_header(self, csvfile):
-        data = pd.read_csv(csvfile)
+        ext = csvfile.name.split('.')[-1]
+        if ext == 'csv':
+            data = pd.read_csv(csvfile)
+        elif ext == 'xlsx' or ext == 'xls':
+            data = pd.read_excel(csvfile)
+        else:
+            raise APIException('File format not supported')
         df = DataFrame(data)
         cov = df.corr()
         cov = cov.where(pd.notnull(cov), "nan")
         id = datetime.now().strftime("%Y%m%d%H%M%S%f")
-        with open(path.join(DIR_NAME, f'{id}.csv'), 'wb+') as destination:
+        with open(path.join(DIR_NAME, f'{id}.{ext}'), 'wb+') as destination:
             for chunk in csvfile.chunks():
                 destination.write(chunk)
         return {"_id": id, "columns": df.columns, "corr": cov.to_dict()}

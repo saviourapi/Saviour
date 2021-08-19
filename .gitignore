@@ -2,3 +2,5 @@
 **/__pycache__/**
 **/*.csv
 static/files/*.sav
+static/files/*.xlsx
+static/files/*.xls
